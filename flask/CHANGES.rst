@@ -1,13 +1,13 @@
 .. currentmodule:: flask
 
-Flask Changelog
+Flask 变更日志
 ===============
 
 
 Version 1.0
 -----------
 
-Released on April 26th 2018
+2018年4月26号发版
 
 -   **Python 2.6 and 3.3 are no longer supported.** (`pallets/meta#24`_)
 -   Bump minimum dependency versions to the latest stable versions:
@@ -218,11 +218,10 @@ Released on April 26th 2018
 Version 0.12.3
 --------------
 
-Released on April 26th 2018
+2018年4月26号发版
 
--   :func:`Request.get_json` no longer accepts arbitrary encodings.
-    Incoming JSON should be encoded using UTF-8 per :rfc:`8259`, but
-    Flask will autodetect UTF-8, -16, or -32. (`#2692`_)
+-   :func:`Request.get_json`不再接受任意编码.
+    Incoming JSON 应该进行UTF-8编码 :rfc:`8259`, 但是Flask会自动检测UTF-8/-16/-32.(`#2692`_)
 -   Fix a Python warning about imports when using ``python -m flask``.
     (`#2666`_)
 -   Fix a ``ValueError`` caused by invalid ``Range`` requests in some
@@ -235,14 +234,14 @@ Released on April 26th 2018
 Version 0.12.2
 --------------
 
-Released on May 16 2017
+2017年5月16号发版
 
 - Fix a bug in `safe_join` on Windows.
 
 Version 0.12.1
 --------------
 
-Bugfix release, released on March 31st 2017
+Bugfix release, 2017年3月31号发版
 
 - Prevent `flask run` from showing a NoAppException when an ImportError occurs
   within the imported application module.
@@ -257,7 +256,7 @@ Bugfix release, released on March 31st 2017
 Version 0.12
 ------------
 
-Released on December 21st 2016, codename Punsch.
+2016年12月21号发版，名称： Punsch.
 
 - the cli command now responds to `--version`.
 - Mimetype guessing and ETag generation for file-like objects in ``send_file``
@@ -285,7 +284,7 @@ Bugfix release, unreleased
 Version 0.11.1
 --------------
 
-Bugfix release, released on June 7th 2016.
+Bugfix release, 2016年六月7号发版.
 
 - Fixed a bug that prevented ``FLASK_APP=foobar/__init__.py`` from working. See
   pull request ``#1872``.
@@ -293,7 +292,7 @@ Bugfix release, released on June 7th 2016.
 Version 0.11
 ------------
 
-Released on May 29th 2016, codename Absinthe.
+2016年5月29号发版，名称： Absinthe.
 
 - Added support to serializing top-level arrays to :func:`flask.jsonify`. This
   introduces a security risk in ancient browsers. See
@@ -395,7 +394,7 @@ Version 0.10.2
 Version 0.10.1
 --------------
 
-(bugfix release, released on June 14th 2013)
+(bugfix release, 2013年6月14号发版)
 
 - Fixed an issue where ``|tojson`` was not quoting single quotes which
   made the filter not work properly in HTML attributes.  Now it's
@@ -410,7 +409,7 @@ Version 0.10.1
 Version 0.10
 ------------
 
-Released on June 13th 2013, codename Limoncello.
+2013年6月13号发版，名称： Limoncello.
 
 - Changed default cookie serialization format from pickle to JSON to
   limit the impact an attacker can do if the secret key leaks.  See
@@ -487,7 +486,7 @@ Released on June 13th 2013, codename Limoncello.
 Version 0.9
 -----------
 
-Released on July 1st 2012, codename Campari.
+2012年7月1号发版，名称： Campari.
 
 - The :func:`flask.Request.on_json_loading_failed` now returns a JSON formatted
   response by default.
@@ -558,7 +557,7 @@ Released on July 1st 2012, codename Campari.
 Version 0.8.1
 -------------
 
-Bugfix release, released on July 1st 2012
+Bugfix release, 2012年7月1号发版
 
 - Fixed an issue with the undocumented `flask.session` module to not
   work properly on Python 2.5.  It should not be used but did cause
@@ -567,7 +566,7 @@ Bugfix release, released on July 1st 2012
 Version 0.8
 -----------
 
-Released on September 29th 2011, codename Rakija
+2011年9月29号发版，名称： Rakija
 
 - Refactored session support into a session interface so that
   the implementation of the sessions can be changed without
@@ -622,7 +621,7 @@ Bugfix release, release date to be decided
 Version 0.7.2
 -------------
 
-Bugfix release, released on July 6th 2011
+Bugfix release,2011年7月6号发版
 
 - Fixed an issue with URL processors not properly working on
   blueprints.
@@ -630,7 +629,7 @@ Bugfix release, released on July 6th 2011
 Version 0.7.1
 -------------
 
-Bugfix release, released on June 29th 2011
+Bugfix release, 2011年6月29号发版
 
 - Added missing future import that broke 2.5 compatibility.
 - Fixed an infinite redirect issue with blueprints.
@@ -638,7 +637,7 @@ Bugfix release, released on June 29th 2011
 Version 0.7
 -----------
 
-Released on June 28th 2011, codename Grappa
+2011年6月28号发版，名称： Grappa
 
 - Added :meth:`~flask.Flask.make_default_options_response`
   which can be used by subclasses to alter the default
@@ -693,7 +692,7 @@ Released on June 28th 2011, codename Grappa
 Version 0.6.1
 -------------
 
-Bugfix release, released on December 31st 2010
+Bugfix release, 2010年12月31号发版
 
 - Fixed an issue where the default ``OPTIONS`` response was
   not exposing all valid methods in the ``Allow`` header.
@@ -709,7 +708,7 @@ Bugfix release, released on December 31st 2010
 Version 0.6
 -----------
 
-Released on July 27th 2010, codename Whisky
+2010年7月27号发版，名称： Whisky
 
 - after request functions are now called in reverse order of
   registration.
@@ -746,7 +745,7 @@ Released on July 27th 2010, codename Whisky
 Version 0.5.2
 -------------
 
-Bugfix Release, released on July 15th 2010
+Bugfix Release, 2010年7月15号发版
 
 - fixed another issue with loading templates from directories when
   modules were used.
@@ -754,7 +753,7 @@ Bugfix Release, released on July 15th 2010
 Version 0.5.1
 -------------
 
-Bugfix Release, released on July 6th 2010
+Bugfix Release, 2010年7月6号发版
 
 - fixes an issue with template loading from directories when modules
   where used.
@@ -762,7 +761,7 @@ Bugfix Release, released on July 6th 2010
 Version 0.5
 -----------
 
-Released on July 6th 2010, codename Calvados
+2010年7月6号发版，名称： Calvados
 
 - fixed a bug with subdomains that was caused by the inability to
   specify the server name.  The server name can now be set with
@@ -786,7 +785,7 @@ Released on July 6th 2010, codename Calvados
 Version 0.4
 -----------
 
-Released on June 18th 2010, codename Rakia
+2010年6月18号发版，名称： Rakia
 
 - added the ability to register application wide error handlers
   from modules.
@@ -804,7 +803,7 @@ Released on June 18th 2010, codename Rakia
 Version 0.3.1
 -------------
 
-Bugfix release, released on May 28th 2010
+Bugfix release, 2010年5月28号发版
 
 - fixed a error reporting bug with :meth:`flask.Config.from_envvar`
 - removed some unused code from flask
@@ -815,7 +814,7 @@ Bugfix release, released on May 28th 2010
 Version 0.3
 -----------
 
-Released on May 28th 2010, codename Schnaps
+2010年5月28号发版，名称： Schnaps
 
 - added support for categories for flashed messages.
 - the application now configures a :class:`logging.Handler` and will
@@ -831,17 +830,16 @@ Released on May 28th 2010, codename Schnaps
 Version 0.2
 -----------
 
-Released on May 12th 2010, codename Jägermeister
+2010年5月12号发版，名称：Jägermeister
 
-- various bugfixes
-- integrated JSON support
-- added :func:`~flask.get_template_attribute` helper function.
-- :meth:`~flask.Flask.add_url_rule` can now also register a
-  view function.
-- refactored internal request dispatching.
-- server listens on 127.0.0.1 by default now to fix issues with chrome.
-- added external URL support.
-- added support for :func:`~flask.send_file`
+- 多个bug修复
+- 集成JSON支持
+- 添加 :func:`~flask.get_template_attribute` 辅助函数.
+- :meth:`~flask.Flask.add_url_rule` 现在也可以注册一个视图函数.
+- 重构内部请求调度.
+- server缺省绑定127.0.0.1.
+- 添加外部URL支持.
+- 添加 :func:`~flask.send_file`
 - module support and internal request handling refactoring
   to better support pluggable applications.
 - sessions can be set to be permanent now on a per-session basis.
@@ -851,4 +849,4 @@ Released on May 12th 2010, codename Jägermeister
 Version 0.1
 -----------
 
-First public preview release.
+第一个公开预览版.
