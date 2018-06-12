@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    flask.debughelpers
-    ~~~~~~~~~~~~~~~~~~
-
-    Various helpers to make the development experience better.
-
-    :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    flask.debughelpers：开发调试辅助工具
 """
 
 import os
@@ -24,7 +18,7 @@ class UnexpectedUnicodeError(AssertionError, UnicodeError):
     """
 
 
-@implements_to_string
+@implements_to_string  # 为了兼容
 class DebugFilesKeyError(KeyError, AssertionError):
     """Raised from request.files during debugging.  The idea is that it can
     provide a better error message than just a generic KeyError/BadRequest.
@@ -41,7 +35,7 @@ class DebugFilesKeyError(KeyError, AssertionError):
         if form_matches:
             buf.append('\n\nThe browser instead transmitted some file names. '
                        'This was submitted: %s' % ', '.join('"%s"' % x
-                            for x in form_matches))
+                                                            for x in form_matches))
         self.msg = ''.join(buf)
 
     def __str__(self):
@@ -81,6 +75,7 @@ def attach_enctype_error_multidict(request):
     object is accessed.
     """
     oldcls = request.files.__class__
+
     class newcls(oldcls):
         def __getitem__(self, key):
             try:
@@ -89,12 +84,14 @@ def attach_enctype_error_multidict(request):
                 if key not in request.form:
                     raise
                 raise DebugFilesKeyError(request, key)
+
     newcls.__name__ = oldcls.__name__
     newcls.__module__ = oldcls.__module__
     request.files.__class__ = newcls
 
 
 def _dump_loader_info(loader):
+    """输出加载器信息"""
     yield 'class: %s.%s' % (type(loader).__module__, type(loader).__name__)
     for key, value in sorted(loader.__dict__.items()):
         if key.startswith('_'):
@@ -112,13 +109,13 @@ def _dump_loader_info(loader):
 
 
 def explain_template_loading_attempts(app, template, attempts):
-    """This should help developers understand what failed"""
-    info = ['Locating template "%s":' % template]
+    """解释说明：帮助开发者理解模板加载的时候哪里出错了"""
+    info = ['Locating template "%s":' % template]  # 定位模板信息
     total_found = 0
     blueprint = None
-    reqctx = _request_ctx_stack.top
+    reqctx = _request_ctx_stack.top  # 获取应用上下文
     if reqctx is not None and reqctx.request.blueprint is not None:
-        blueprint = reqctx.request.blueprint
+        blueprint = reqctx.request.blueprint  # 蓝图
 
     for idx, (loader, srcobj, triple) in enumerate(attempts):
         if isinstance(srcobj, Flask):
@@ -160,6 +157,8 @@ def explain_template_loading_attempts(app, template, attempts):
 
 
 def explain_ignored_app_run():
+    # 解释说明
+    # 当设置环境变量WERKZEUG_RUN_MAIN为true时，使用flask命令行工具将会忽略app.run()
     if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
         warn(Warning('Silently ignoring app.run() because the '
                      'application is run from the flask command line '

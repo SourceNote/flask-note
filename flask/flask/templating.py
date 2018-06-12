@@ -1,27 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-    flask.templating
-    ~~~~~~~~~~~~~~~~
-
-    Implements the bridge to Jinja2.
-
-    :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    flask.templating:实现与Jinja2的桥接.
 """
 
 from jinja2 import BaseLoader, Environment as BaseEnvironment, \
-     TemplateNotFound
+    TemplateNotFound
 
 from .globals import _request_ctx_stack, _app_ctx_stack
 from .signals import template_rendered, before_render_template
 
 
 def _default_template_ctx_processor():
-    """Default template context processor.  Injects `request`,
-    `session` and `g`.
     """
-    reqctx = _request_ctx_stack.top
-    appctx = _app_ctx_stack.top
+    缺省模板上下文处理器
+    注入到request、session、g
+    :return:
+    """
+    reqctx = _request_ctx_stack.top  # 获取请求上下文
+    appctx = _app_ctx_stack.top  # 获取应用上下文
     rv = {}
     if appctx is not None:
         rv['g'] = appctx.g
@@ -32,10 +28,7 @@ def _default_template_ctx_processor():
 
 
 class Environment(BaseEnvironment):
-    """Works like a regular Jinja2 environment but has some additional
-    knowledge of how Flask's blueprint works so that it can prepend the
-    name of the blueprint to referenced templates if necessary.
-    """
+    """主要是为了照顾Flask中的蓝图"""
 
     def __init__(self, app, **options):
         if 'loader' not in options:
@@ -45,9 +38,7 @@ class Environment(BaseEnvironment):
 
 
 class DispatchingJinjaLoader(BaseLoader):
-    """A loader that looks for templates in the application and all
-    the blueprint folders.
-    """
+    """加载器：在应用和所有蓝图文件夹下寻找模板"""
 
     def __init__(self, app):
         self.app = app
@@ -111,10 +102,12 @@ class DispatchingJinjaLoader(BaseLoader):
 
 
 def _render(template, context, app):
-    """Renders the template and fires the signal"""
+    """渲染模板并发射信号"""
 
+    # 发送模板渲染前信号
     before_render_template.send(app, template=template, context=context)
     rv = template.render(context)
+    # 发送模板渲染完成信号
     template_rendered.send(app, template=template, context=context)
     return rv
 

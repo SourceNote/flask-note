@@ -30,6 +30,7 @@ except ImportError:
                                'blinker库没有安装 ')
 
         send = lambda *a, **kw: None
+        # 所有的接受操作都设置为抛出异常
         connect = disconnect = has_receivers_for = receivers_for = \
             temporarily_connected_to = connected_to = _fail
         del _fail

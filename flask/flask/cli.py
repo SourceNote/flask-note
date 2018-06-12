@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    flask.cli
-    ~~~~~~~~~
-
-    A simple command line application to run flask apps.
-
-    :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    flask.cli：用于运行flask app的简单命令行程序
 """
 
 from __future__ import print_function
@@ -302,6 +296,7 @@ class DispatchingApp(object):
                     self._load_unlocked()
                 except Exception:
                     self._bg_loading_exc_info = sys.exc_info()
+
         t = Thread(target=_load_app, args=())
         t.start()
 
@@ -406,10 +401,12 @@ def with_appcontext(f):
     to the ``app.cli`` object then they are wrapped with this function
     by default unless it's disabled.
     """
+
     @click.pass_context
     def decorator(__ctx, *args, **kwargs):
         with __ctx.ensure_object(ScriptInfo).load_app().app_context():
             return __ctx.invoke(f, *args, **kwargs)
+
     return update_wrapper(decorator, f)
 
 
@@ -427,10 +424,12 @@ class AppGroup(click.Group):
         unless it's disabled by passing ``with_appcontext=False``.
         """
         wrap_for_ctx = kwargs.pop('with_appcontext', True)
+
         def decorator(f):
             if wrap_for_ctx:
                 f = with_appcontext(f)
             return click.Group.command(self, *args, **kwargs)(f)
+
         return decorator
 
     def group(self, *args, **kwargs):
@@ -733,13 +732,13 @@ def _validate_key(ctx, param, value):
               help='The key file to use when specifying a certificate.')
 @click.option('--reload/--no-reload', default=None,
               help='Enable or disable the reloader. By default the reloader '
-              'is active if debug is enabled.')
+                   'is active if debug is enabled.')
 @click.option('--debugger/--no-debugger', default=None,
               help='Enable or disable the debugger. By default the debugger '
-              'is active if debug is enabled.')
+                   'is active if debug is enabled.')
 @click.option('--eager-loading/--lazy-loader', default=None,
               help='Enable or disable eager loading. By default eager '
-              'loading is enabled if the reloader is disabled.')
+                   'loading is enabled if the reloader is disabled.')
 @click.option('--with-threads/--without-threads', default=True,
               help='Enable or disable multithreading.')
 @pass_script_info
@@ -812,8 +811,8 @@ def shell_command():
     type=click.Choice(('endpoint', 'methods', 'rule', 'match')),
     default='endpoint',
     help=(
-        'Method to sort routes by. "match" is the order that Flask will match '
-        'routes when dispatching a request.'
+            'Method to sort routes by. "match" is the order that Flask will match '
+            'routes when dispatching a request.'
     )
 )
 @click.option(

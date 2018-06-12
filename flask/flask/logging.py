@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-flask.logging
-~~~~~~~~~~~~~
-
-:copyright: © 2010 by the Pallets team.
-:license: BSD, see LICENSE for more details.
+flask.logging：日志配置
 """
 
 from __future__ import absolute_import

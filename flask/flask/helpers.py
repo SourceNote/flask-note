@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    flask.helpers
-    ~~~~~~~~~~~~~
-
-    Implements various helpers.
-
-    :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    flask.helpers：一些辅助型函数
 """
 
 import os
@@ -32,37 +26,28 @@ from jinja2 import FileSystemLoader
 
 from .signals import message_flashed
 from .globals import session, _request_ctx_stack, _app_ctx_stack, \
-     current_app, request
+    current_app, request
 from ._compat import string_types, text_type, PY2
 
-# sentinel
-_missing = object()
+# 哨兵
+_missing = object()  # 空对象
 
-
-# what separators does this operating system provide that are not a slash?
-# this is used by the send_from_directory function to ensure that nobody is
-# able to access files from outside the filesystem.
+# send_from_directory这个函数使用
+# 防止在文件系统之外访问数据
 _os_alt_seps = list(sep for sep in [os.path.sep, os.path.altsep]
                     if sep not in (None, '/'))
 
 
 def get_env():
-    """Get the environment the app is running in, indicated by the
-    :envvar:`FLASK_ENV` environment variable. The default is
-    ``'production'``.
-    """
+    """通过环境变量获取应用运行的环境，如若没有设置，缺省为生产环境"""
     return os.environ.get('FLASK_ENV') or 'production'
 
 
 def get_debug_flag():
-    """Get whether debug mode should be enabled for the app, indicated
-    by the :envvar:`FLASK_DEBUG` environment variable. The default is
-    ``True`` if :func:`.get_env` returns ``'development'``, or ``False``
-    otherwise.
-    """
+    """获取debug标志"""
     val = os.environ.get('FLASK_DEBUG')
 
-    if not val:
+    if not val:  # 如果没设置，缺省与开发环境作比较
         return get_env() == 'development'
 
     return val.lower() not in ('0', 'false', 'no')
@@ -117,13 +102,14 @@ def stream_with_context(generator_or_function):
         def decorator(*args, **kwargs):
             gen = generator_or_function(*args, **kwargs)
             return stream_with_context(gen)
+
         return update_wrapper(decorator, generator_or_function)
 
     def generator():
         ctx = _request_ctx_stack.top
         if ctx is None:
             raise RuntimeError('Attempted to stream with context but '
-                'there was no context in the first place to keep around.')
+                               'there was no context in the first place to keep around.')
         with ctx:
             # Dummy sentinel.  Has to be inside the context block or we're
             # not actually keeping the context around.
@@ -521,7 +507,7 @@ def send_file(filename_or_fp, mimetype=None, as_attachment=False,
     fsize = None
     if isinstance(filename_or_fp, string_types):
         filename = filename_or_fp
-        if not os.path.isabs(filename):
+        if not os.path.isabs(filename):  # 如果不是绝对地址，转换成绝对地址
             filename = os.path.join(current_app.root_path, filename)
         file = None
         if attachment_filename is None:
@@ -531,11 +517,12 @@ def send_file(filename_or_fp, mimetype=None, as_attachment=False,
         filename = None
 
     if mimetype is None:
-        if attachment_filename is not None:
+        if attachment_filename is not None:  # 附件文件名存在的话
+            # 猜测文件的mimetype
             mimetype = mimetypes.guess_type(attachment_filename)[0] \
-                or 'application/octet-stream'
+                       or 'application/octet-stream'
 
-        if mimetype is None:
+        if mimetype is None:  # 文件名不存在 且mimetype为空
             raise ValueError(
                 'Unable to infer MIME-type because no filename is available. '
                 'Please set either `attachment_filename`, pass a filepath to '
@@ -557,8 +544,9 @@ def send_file(filename_or_fp, mimetype=None, as_attachment=False,
                 'filename*': "UTF-8''%s" % url_quote(attachment_filename),
             }
         else:
+            # 如果try中的代码块正常执行，就执行本else代码块
             filenames = {'filename': attachment_filename}
-
+        # 添加文件头
         headers.add('Content-Disposition', 'attachment', **filenames)
 
     if current_app.use_x_sendfile and filename:
@@ -647,10 +635,10 @@ def safe_join(directory, *pathnames):
             filename = posixpath.normpath(filename)
 
         if (
-            any(sep in filename for sep in _os_alt_seps)
-            or os.path.isabs(filename)
-            or filename == '..'
-            or filename.startswith('../')
+                any(sep in filename for sep in _os_alt_seps)
+                or os.path.isabs(filename)
+                or filename == '..'
+                or filename.startswith('../')
         ):
             raise NotFound()
 
@@ -989,29 +977,14 @@ class _PackageBoundObject(object):
 
 
 def total_seconds(td):
-    """Returns the total seconds from a timedelta object.
-
-    :param timedelta td: the timedelta to be converted in seconds
-
-    :returns: number of seconds
-    :rtype: int
-    """
+    """timedelta转成秒数."""
     return td.days * 60 * 60 * 24 + td.seconds
 
 
 def is_ip(value):
-    """Determine if the given string is an IP address.
-
-    Python 2 on Windows doesn't provide ``inet_pton``, so this only
-    checks IPv4 addresses in that environment.
-
-    :param value: value to check
-    :type value: str
-
-    :return: True if string is an IP address
-    :rtype: bool
-    """
-    if PY2 and os.name == 'nt':
+    """判断给定的字符串是否是个合法IP.
+    （Windows PY2没有socket.inet_pton，只能检测IPV4）"""
+    if PY2 and os.name == 'nt':  # python2.x Windows平台
         try:
             socket.inet_aton(value)
             return True
