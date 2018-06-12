@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    flask.config
-    ~~~~~~~~~~~~
-
-    Implements the configuration related objects.
-
-    :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    flask.config:主要实现配置相关对象
 """
 
 import os
@@ -19,7 +13,7 @@ from . import json
 
 
 class ConfigAttribute(object):
-    """Makes an attribute forward to the config"""
+    """访问配置项"""
 
     def __init__(self, name, get_converter=None):
         self.__name__ = name
@@ -86,16 +80,12 @@ class Config(dict):
         self.root_path = root_path
 
     def from_envvar(self, variable_name, silent=False):
-        """Loads a configuration from an environment variable pointing to
-        a configuration file.  This is basically just a shortcut with nicer
-        error messages for this line of code::
-
-            app.config.from_pyfile(os.environ['YOURAPPLICATION_SETTINGS'])
-
-        :param variable_name: name of the environment variable
-        :param silent: set to ``True`` if you want silent failure for missing
-                       files.
-        :return: bool. ``True`` if able to load config, ``False`` otherwise.
+        """
+        从环境变量中加载配置文件的地址信息
+        正常功能等价于：app.config.from_pyfile(os.environ['YOURAPPLICATION_SETTINGS'])
+        :param variable_name:
+        :param silent:
+        :return:
         """
         rv = os.environ.get(variable_name)
         if not rv:
@@ -109,28 +99,22 @@ class Config(dict):
         return self.from_pyfile(rv, silent=silent)
 
     def from_pyfile(self, filename, silent=False):
-        """Updates the values in the config from a Python file.  This function
-        behaves as if the file was imported as module with the
-        :meth:`from_object` function.
-
-        :param filename: the filename of the config.  This can either be an
-                         absolute filename or a filename relative to the
-                         root path.
-        :param silent: set to ``True`` if you want silent failure for missing
-                       files.
-
-        .. versionadded:: 0.7
-           `silent` parameter.
+        """
+        从Python文件中加载配置项，功能如同 :meth:`from_object`加载一个已经import的模块
+        :param filename:
+        :param silent:
+        :return:
         """
         filename = os.path.join(self.root_path, filename)
-        d = types.ModuleType('config')
+        d = types.ModuleType('config')  # 创建一个模块型type元
         d.__file__ = filename
         try:
             with open(filename, mode='rb') as config_file:
-                exec(compile(config_file.read(), filename, 'exec'), d.__dict__)
+                # 将文本编译为Python对象
+                exec (compile(config_file.read(), filename, 'exec'), d.__dict__)
         except IOError as e:
             if silent and e.errno in (
-                errno.ENOENT, errno.EISDIR, errno.ENOTDIR
+                    errno.ENOENT, errno.EISDIR, errno.ENOTDIR
             ):
                 return False
             e.strerror = 'Unable to load configuration file (%s)' % e.strerror
@@ -139,51 +123,19 @@ class Config(dict):
         return True
 
     def from_object(self, obj):
-        """Updates the values from the given object.  An object can be of one
-        of the following two types:
-
-        -   a string: in this case the object with that name will be imported
-        -   an actual object reference: that object is used directly
-
-        Objects are usually either modules or classes. :meth:`from_object`
-        loads only the uppercase attributes of the module/class. A ``dict``
-        object will not work with :meth:`from_object` because the keys of a
-        ``dict`` are not attributes of the ``dict`` class.
-
-        Example of module-based configuration::
-
-            app.config.from_object('yourapplication.default_config')
-            from yourapplication import default_config
-            app.config.from_object(default_config)
-
-        You should not use this function to load the actual configuration but
-        rather configuration defaults.  The actual config should be loaded
-        with :meth:`from_pyfile` and ideally from a location not within the
-        package because the package might be installed system wide.
-
-        See :ref:`config-dev-prod` for an example of class-based configuration
-        using :meth:`from_object`.
-
-        :param obj: an import name or object
+        """
+        从Python对象加载配置
+        :param obj:
+        :return:
         """
         if isinstance(obj, string_types):
             obj = import_string(obj)
         for key in dir(obj):
-            if key.isupper():
+            if key.isupper():  # 只加载大写项
                 self[key] = getattr(obj, key)
 
     def from_json(self, filename, silent=False):
-        """Updates the values in the config from a JSON file. This function
-        behaves as if the JSON object was a dictionary and passed to the
-        :meth:`from_mapping` function.
-
-        :param filename: the filename of the JSON file.  This can either be an
-                         absolute filename or a filename relative to the
-                         root path.
-        :param silent: set to ``True`` if you want silent failure for missing
-                       files.
-
-        .. versionadded:: 0.11
+        """从JSON文件加载配置项
         """
         filename = os.path.join(self.root_path, filename)
 
@@ -195,11 +147,12 @@ class Config(dict):
                 return False
             e.strerror = 'Unable to load configuration file (%s)' % e.strerror
             raise
+        # 将JSON文件转换成Python字典对象
+        # 然后使用from_mapping加载该对象
         return self.from_mapping(obj)
 
     def from_mapping(self, *mapping, **kwargs):
-        """Updates the config like :meth:`update` ignoring items with non-upper
-        keys.
+        """从字典加载配置
 
         .. versionadded:: 0.11
         """
@@ -216,11 +169,12 @@ class Config(dict):
         mappings.append(kwargs.items())
         for mapping in mappings:
             for (key, value) in mapping:
-                if key.isupper():
+                if key.isupper():  # 忽略非大写项
                     self[key] = value
         return True
 
     def get_namespace(self, namespace, lowercase=True, trim_namespace=True):
+        """获取符合命名空间规则的配置集"""
         """Returns a dictionary containing a subset of configuration options
         that match the specified namespace/prefix. Example usage::
 
@@ -252,11 +206,11 @@ class Config(dict):
         for k, v in iteritems(self):
             if not k.startswith(namespace):
                 continue
-            if trim_namespace:
+            if trim_namespace:  # 是否清除命名空间头
                 key = k[len(namespace):]
             else:
                 key = k
-            if lowercase:
+            if lowercase:  # 转小写
                 key = key.lower()
             rv[key] = v
         return rv
