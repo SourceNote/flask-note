@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    flask.sessions
-    ~~~~~~~~~~~~~~
-
-    Implements cookie based sessions based on itsdangerous.
-
-    :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    flask.sessions：使用itsdangerous实现基于cookie的session
 """
 
 import hashlib
@@ -22,57 +16,52 @@ from flask.json.tag import TaggedJSONSerializer
 
 
 class SessionMixin(MutableMapping):
-    """Expands a basic dictionary with session attributes."""
+    """给一个基础字典设置session属性进行扩展"""
 
     @property
     def permanent(self):
-        """This reflects the ``'_permanent'`` key in the dict."""
+        """反射字典中的`_permanent`"""
         return self.get('_permanent', False)
 
     @permanent.setter
     def permanent(self, value):
-        self['_permanent'] = bool(value)
+        self['_permanent'] = bool(value)  # 注意这里进行了强制类型转换
 
     #: Some implementations can detect whether a session is newly
     #: created, but that is not guaranteed. Use with caution. The mixin
     # default is hard-coded ``False``.
+    # 缺省硬编码为False，session是否是新创建的
     new = False
 
     #: Some implementations can detect changes to the session and set
     #: this when that happens. The mixin default is hard coded to
     #: ``True``.
+    # 缺省硬编码为True，session是否被更改
     modified = True
 
     #: Some implementations can detect when session data is read or
     #: written and set this when that happens. The mixin default is hard
     #: coded to ``True``.
+    # 缺省硬编码为True，session是否被访问
     accessed = True
 
 
-class SecureCookieSession(CallbackDict, SessionMixin):
-    """Base class for sessions based on signed cookies.
+class SecureCookieSession(CallbackDict, SessionMixin):  # 这里有个疑惑点：继承顺序
+    """基于签名cookie实现的session基类."""
 
-    This session backend will set the :attr:`modified` and
-    :attr:`accessed` attributes. It cannot reliably track whether a
-    session is new (vs. empty), so :attr:`new` remains hard coded to
-    ``False``.
-    """
-
-    #: When data is changed, this is set to ``True``. Only the session
-    #: dictionary itself is tracked; if the session contains mutable
-    #: data (for example a nested dict) then this must be set to
-    #: ``True`` manually when modifying that data. The session cookie
-    #: will only be written to the response if this is ``True``.
+    # 当数据被改变，被设置为True；如果session字典包含可修改数据（比如说嵌套字典）
+    # 一定要在修改数据的和时候手动设置为True
+    # 只有此字段为True时session cookie才会被写进响应
     modified = False
 
-    #: When data is read or written, this is set to ``True``. Used by
-    # :class:`.SecureCookieSessionInterface` to add a ``Vary: Cookie``
-    #: header, which allows caching proxies to cache different pages for
-    #: different users.
+    # 数据被访问时（读或写），被设置为True
+    # .SecureCookieSessionInterface使用来添加Vary: Cookie头
+    # 以允许缓存代理针对不同的用户缓存不同的页面
     accessed = False
 
     def __init__(self, initial=None):
         def on_update(self):
+            # 发生更新就更新下面两个字段
             self.modified = True
             self.accessed = True
 
@@ -83,24 +72,23 @@ class SecureCookieSession(CallbackDict, SessionMixin):
         return super(SecureCookieSession, self).__getitem__(key)
 
     def get(self, key, default=None):
-        self.accessed = True
+        self.accessed = True  # 设置字段更新
         return super(SecureCookieSession, self).get(key, default)
 
     def setdefault(self, key, default=None):
-        self.accessed = True
+        self.accessed = True  # 设置字段更新
         return super(SecureCookieSession, self).setdefault(key, default)
 
 
 class NullSession(SecureCookieSession):
-    """Class used to generate nicer error messages if sessions are not
-    available.  Will still allow read-only access to the empty session
-    but fail on setting.
-    """
+    """空Session类，可访问，不可被设置，为了提供更有好的错误信息"""
 
     def _fail(self, *args, **kwargs):
         raise RuntimeError('The session is unavailable because no secret '
                            'key was set.  Set the secret_key on the '
                            'application to something unique and secret.')
+
+    # 所有修改相关的操作全部设置为抛出相关异常的方法
     __setitem__ = __delitem__ = clear = pop = popitem = \
         update = setdefault = _fail
     del _fail
@@ -150,34 +138,20 @@ class SessionInterface(object):
     pickle_based = False
 
     def make_null_session(self, app):
-        """Creates a null session which acts as a replacement object if the
-        real session support could not be loaded due to a configuration
-        error.  This mainly aids the user experience because the job of the
-        null session is to still support lookup without complaining but
-        modifications are answered with a helpful error message of what
-        failed.
-
-        This creates an instance of :attr:`null_session_class` by default.
-        """
+        """创建空session"""
         return self.null_session_class()
 
     def is_null_session(self, obj):
-        """Checks if a given object is a null session.  Null sessions are
-        not asked to be saved.
-
-        This checks if the object is an instance of :attr:`null_session_class`
-        by default.
-        """
+        """检查是否是空session"""
         return isinstance(obj, self.null_session_class)
 
     def get_cookie_domain(self, app):
-        """Returns the domain that should be set for the session cookie.
-
-        Uses ``SESSION_COOKIE_DOMAIN`` if it is configured, otherwise
-        falls back to detecting the domain based on ``SERVER_NAME``.
-
-        Once detected (or if not set at all), ``SESSION_COOKIE_DOMAIN`` is
-        updated to avoid re-running the logic.
+        """
+        获取cookie应该被设置的域名
+        获取优先级：app配置SESSION_COOKIE_DOMAIN->SERVER_NAME
+        一旦侦测到SESSION_COOKIE_DOMAIN就会被更新，以免重复运行
+        :param app:
+        :return:
         """
 
         rv = app.config['SESSION_COOKIE_DOMAIN']
@@ -185,6 +159,8 @@ class SessionInterface(object):
         # set explicitly, or cached from SERVER_NAME detection
         # if False, return None
         if rv is not None:
+            # 这样写要对照下面的SERVER_NAME
+            # 防止重复运行
             return rv if rv else None
 
         rv = app.config['SERVER_NAME']
@@ -194,12 +170,12 @@ class SessionInterface(object):
             app.config['SESSION_COOKIE_DOMAIN'] = False
             return None
 
-        # chop off the port which is usually not supported by browsers
-        # remove any leading '.' since we'll add that later
+        # 移除端口号：浏览器通常不支持
+        # 一处开头的.,因为稍后会加上
         rv = rv.rsplit(':', 1)[0].lstrip('.')
 
         if '.' not in rv:
-            # Chrome doesn't allow names without a '.'
+            # Chrome浏览器不允许没有.
             # this should only come up with localhost
             # hack around this by not setting the name, and show a warning
             warnings.warn(
@@ -229,10 +205,8 @@ class SessionInterface(object):
         return rv
 
     def get_cookie_path(self, app):
-        """Returns the path for which the cookie should be valid.  The
-        default implementation uses the value from the ``SESSION_COOKIE_PATH``
-        config var if it's set, and falls back to ``APPLICATION_ROOT`` or
-        uses ``/`` if it's ``None``.
+        """获取cookie路径
+        优先级：配置中的SESSION_COOKIE_PATH->APPLICATION_ROOT->/
         """
         return app.config['SESSION_COOKIE_PATH'] \
                or app.config['APPLICATION_ROOT']
@@ -258,12 +232,13 @@ class SessionInterface(object):
         return app.config['SESSION_COOKIE_SAMESITE']
 
     def get_expiration_time(self, app, session):
+        """获取session的过期时间"""
         """A helper method that returns an expiration date for the session
         or ``None`` if the session is linked to the browser session.  The
         default implementation returns now + the permanent session
         lifetime configured on the application.
         """
-        if session.permanent:
+        if session.permanent:  # 如果是永久的
             return datetime.utcnow() + app.permanent_session_lifetime
 
     def should_set_cookie(self, app, session):
@@ -279,7 +254,7 @@ class SessionInterface(object):
         """
 
         return session.modified or (
-            session.permanent and app.config['SESSION_REFRESH_EACH_REQUEST']
+                session.permanent and app.config['SESSION_REFRESH_EACH_REQUEST']
         )
 
     def open_session(self, app, request):
@@ -299,7 +274,7 @@ class SessionInterface(object):
         raise NotImplementedError()
 
 
-session_json_serializer = TaggedJSONSerializer()
+session_json_serializer = TaggedJSONSerializer()  # Session JSON序列化器
 
 
 class SecureCookieSessionInterface(SessionInterface):
@@ -332,6 +307,7 @@ class SecureCookieSessionInterface(SessionInterface):
                                       signer_kwargs=signer_kwargs)
 
     def open_session(self, app, request):
+        """读取request中的cookie"""
         s = self.get_signing_serializer(app)
         if s is None:
             return None
@@ -346,6 +322,7 @@ class SecureCookieSessionInterface(SessionInterface):
             return self.session_class()
 
     def save_session(self, app, session, response):
+        """将cookie写到response"""
         domain = self.get_cookie_domain(app)
         path = self.get_cookie_path(app)
 
