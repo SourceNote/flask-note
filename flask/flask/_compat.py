@@ -1,14 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    flask._compat
-    ~~~~~~~~~~~~~
-
-    Some py2/py3 compatibility support based on a stripped down
-    version of six so we don't have to depend on a specific version
-    of it.
-
-    :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    flask._compat.py:主要是一些兼容性代码设置
 """
 
 import sys
@@ -57,10 +49,8 @@ else:
 
 
 def with_metaclass(meta, *bases):
-    """Create a base class with a metaclass."""
-    # This requires a bit of explanation: the basic idea is to make a
-    # dummy metaclass for one level of class instantiation that replaces
-    # itself with the actual metaclass.
+    """使用元类构造一个基类."""
+    # 代替原始元类.
     class metaclass(type):
         def __new__(cls, name, this_bases, d):
             return meta(name, bases, d)
@@ -78,6 +68,7 @@ def with_metaclass(meta, *bases):
 # versions.
 #
 # Ubuntu 14.04 has PyPy 2.2.1, which does exhibit this bug.
+# 解决异常栈退出问题
 BROKEN_PYPY_CTXMGR_EXIT = False
 if hasattr(sys, 'pypy_version_info'):
     class _Mgr(object):
@@ -85,7 +76,7 @@ if hasattr(sys, 'pypy_version_info'):
             return self
         def __exit__(self, *args):
             if hasattr(sys, 'exc_clear'):
-                # Python 3 (PyPy3) doesn't have exc_clear
+                # Python 3 (PyPy3) 没有 exc_clear
                 sys.exc_clear()
     try:
         try:
